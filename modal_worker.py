@@ -16,6 +16,7 @@ video_generator_image = (
         "Pillow<10.0.0",
         "modal",
         "simpleitk",
+        "numpy",  # Added for the animation
     )
     .add_local_file("policy.xml", "/etc/ImageMagick-6/policy.xml")
 )
@@ -28,24 +29,23 @@ video_generator_image = (
 def generate_video_modal(
     background_content: bytes, 
     audio_content: bytes, 
-    background_filename: str,  # Accept the filename
+    background_filename: str,
     font_content: bytes = None, 
-    highlight_color: str = '#FFFF00', 
+    highlight_color: str = '''#FFFF00''', 
     font_size: int = 70
 ):
     """
-    This function runs on Modal, generating a karaoke-style video with highlighted words.
-    It uses the correct file extension for the background image.
+    This function runs on Modal, generating a karaoke-style video with an animated background.
     """
     import moviepy.editor as mp
     import whisper
-    from moviepy.video.VideoClip import TextClip, ColorClip
+    from moviepy.video.VideoClip import TextClip
     from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
+    import numpy as np
 
     data_dir = Path("/tmp/data")
     data_dir.mkdir(exist_ok=True)
 
-    # --- FIX: Use the original filename to preserve the extension ---
     background_path = data_dir / background_filename 
     audio_path = data_dir / "input_audio"
     converted_audio_path = data_dir / "converted_audio.wav"
@@ -60,7 +60,7 @@ def generate_video_modal(
         user_font_path.write_bytes(font_content)
         font_path = str(user_font_path)
 
-    print("--- Karaoke Video Generation Started (Using Correct File Extension) ---")
+    print("--- Karaoke Video Generation with Animation Started ---")
 
     try:
         print("Converting audio to WAV...")
@@ -93,6 +93,26 @@ def generate_video_modal(
             bg_color=(0,0,0)
         ).set_duration(audio_clip.duration)
         print("Background image processed and fitted to 1920x1080.")
+
+        # --- ADD BACKGROUND ANIMATION ---
+        print("Applying pulsing animation to background...")
+        
+        def resize_func(t):
+            # Creates a smooth, looping pulse effect (zooms in and out)
+            # It scales the image between 100% and 105% of its size over 4 seconds
+            scale = 1.0 + 0.05 * np.sin(t * np.pi / 2) 
+            return scale
+
+        # Apply the animation by resizing the clip over time
+        animated_background = background_clip.resize(resize_func)
+        
+        # Ensure the animated clip is centered and maintains the 1920x1080 canvas
+        animated_background = CompositeVideoClip(
+            [animated_background.set_position("center")],
+            size=(1920, 1080)
+        ).set_duration(audio_clip.duration)
+        print("Animation applied.")
+
 
         print("Creating karaoke video clips (optimized)...")
         all_text_clips = []
@@ -145,7 +165,8 @@ def generate_video_modal(
         print(f"Generated {len(all_text_clips)} total text clips for compositing.")
 
         print("Compositing final video...")
-        final_clips = [background_clip] + all_text_clips
+        # Use the animated background instead of the static one
+        final_clips = [animated_background] + all_text_clips
         video = CompositeVideoClip(final_clips, size=(1920, 1080))
         video.audio = audio_clip
 

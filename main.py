@@ -29,6 +29,7 @@ jobs_lock = threading.Lock()
 
 def process_video_and_upload(job_id, background_content, audio_content, background_filename, font_content, highlight_color, font_size):
     try:
+        print(f"Job {job_id}: Calling Modal function.")
         # Look up the deployed Modal function by its name
         f = modal.Function.from_name("subtitle-generator-app", "generate_video_modal")
 
@@ -42,18 +43,37 @@ def process_video_and_upload(job_id, background_content, audio_content, backgrou
             font_size=font_size
         )
 
-        # Upload to ImageKit
-        upload_info = imagekit.upload(
-            file=io.BytesIO(video_content),
-            file_name=f"{job_id}.mp4",
-        )
+        # Validate the content received from Modal
+        if not video_content:
+            raise ValueError("Modal function returned empty video content.")
+
+        print(f"Job {job_id}: Received video content from Modal ({len(video_content)} bytes).")
+
+        # Save the video to a temporary file before uploading
+        temp_video_path = os.path.join("output", f"{job_id}.mp4")
+        with open(temp_video_path, "wb") as f_out:
+            f_out.write(video_content)
         
+        print(f"Job {job_id}: Video saved locally to {temp_video_path}. Uploading to ImageKit...")
+
+        # Upload the saved file to ImageKit
+        with open(temp_video_path, "rb") as f_in:
+            upload_info = imagekit.upload(
+                file=f_in,
+                file_name=f"{job_id}.mp4",
+            )
+        
+        # Clean up the temporary file
+        os.remove(temp_video_path)
+        print(f"Job {job_id}: Upload complete. Temporary file {temp_video_path} removed.")
+
         # Safely update the job status
         with jobs_lock:
             if job_id in jobs:
                 jobs[job_id] = {"status": "completed", "url": upload_info.url}
 
     except Exception as e:
+        print(f"Job {job_id}: An error occurred: {e}")
         # Safely update the job status
         with jobs_lock:
             if job_id in jobs:

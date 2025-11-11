@@ -1,7 +1,7 @@
-Flask==3.0.3
+Flask==3.0.0
+modal
 moviepy==1.0.3
 openai-whisper==20231117
-modal
-setuptools<81
-pip>=25.3
-gunicorn
+Pillow<10.0.0
+imagekitio
+python-dotenv

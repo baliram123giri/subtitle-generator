@@ -23,7 +23,7 @@ video_generator_image = (
 
 @app.function(
     image=video_generator_image,
-    gpu="T4",
+    gpu="A100",
     timeout=1200,
 )
 def generate_video_modal(
@@ -93,26 +93,6 @@ def generate_video_modal(
             bg_color=(0,0,0)
         ).set_duration(audio_clip.duration)
         print("Background image processed and fitted to 1920x1080.")
-
-        # --- ADD BACKGROUND ANIMATION ---
-        print("Applying pulsing animation to background...")
-        
-        def resize_func(t):
-            # Creates a smooth, looping pulse effect (zooms in and out)
-            # It scales the image between 100% and 105% of its size over 4 seconds
-            scale = 1.0 + 0.05 * np.sin(t * np.pi / 2) 
-            return scale
-
-        # Apply the animation by resizing the clip over time
-        animated_background = background_clip.resize(resize_func)
-        
-        # Ensure the animated clip is centered and maintains the 1920x1080 canvas
-        animated_background = CompositeVideoClip(
-            [animated_background.set_position("center")],
-            size=(1920, 1080)
-        ).set_duration(audio_clip.duration)
-        print("Animation applied.")
-
 
         print("Creating karaoke video clips (optimized)...")
         all_text_clips = []

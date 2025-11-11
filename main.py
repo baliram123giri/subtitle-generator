@@ -47,13 +47,6 @@ def generate_video():
             font_size=font_size
         )
         print("Received video content back from Modal.")
-
-        # Save the video to a file before sending the response
-        video_path = "output/output.mp4"
-        with open(video_path, "wb") as video_file:
-            video_file.write(video_content)
-        print(f"Video successfully saved to {video_path}")
-
         # Send the video file back to the client
         return send_file(
             io.BytesIO(video_content),

@@ -146,7 +146,7 @@ def generate_video_modal(
 
         print("Compositing final video...")
         # Use the animated background instead of the static one
-        final_clips = [animated_background] + all_text_clips
+        final_clips = [background_clip] + all_text_clips
         video = CompositeVideoClip(final_clips, size=(1920, 1080))
         video.audio = audio_clip
 

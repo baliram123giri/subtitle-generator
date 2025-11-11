@@ -4,3 +4,4 @@ openai-whisper==20231117
 modal
 setuptools<81
 pip>=25.3
+gunicorn

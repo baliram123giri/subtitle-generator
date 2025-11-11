@@ -2,3 +2,5 @@ Flask==3.0.3
 moviepy==1.0.3
 openai-whisper==20231117
 modal
+setuptools<81
+pip>=25.3

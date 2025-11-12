@@ -14,8 +14,8 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 # Copy the rest of the application code
 COPY . .
 
-# Make port 10000 available to the world outside this container
-EXPOSE 10000
+# Make port 3300 available to the world outside this container
+EXPOSE 3300
 
-# Run the application
-CMD ["gunicorn", "--bind", "0.0.0.0:10000", "main:app"]
+# Run the application on port 3300
+CMD ["gunicorn", "--bind", "0.0.0.0:3300", "main:app"]

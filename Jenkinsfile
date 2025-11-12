@@ -31,9 +31,8 @@ pipeline {
                 echo "Deploying worker to Modal..."
                 sh '''
                 python3 -m venv .venv
-                source .venv/bin/activate
-                pip install modal
-                modal deploy modal_worker.py
+                .venv/bin/pip install modal
+                .venv/bin/modal deploy modal_worker.py
                 '''
             }
         }

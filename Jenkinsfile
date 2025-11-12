@@ -16,6 +16,9 @@ pipeline {
         MODAL_TOKEN_ID       = credentials('modal-token-id')
         MODAL_TOKEN_SECRET   = credentials('modal-token-secret')
         DOCKER_CREDENTIALS   = credentials('docker-hub-credentials')
+        IMAGEKIT_PRIVATE_KEY = credentials('imagekit-private-key')
+        IMAGEKIT_PUBLIC_KEY  = credentials('imagekit-public-key')
+        IMAGEKIT_URL_ENDPOINT= credentials('imagekit-url-endpoint')
         // Jenkins credential ID for SSH access to your server
         SERVER_SSH_CREDS     = 'server-ssh-credentials' 
     }
@@ -69,9 +72,8 @@ pipeline {
                 echo "Deploying container to server 38.242.147.19..."
                 // Use sshagent to securely connect to your server
                 sshagent (credentials: [SERVER_SSH_CREDS]) {
-                    // Replace 'user@38.242.147.19' with your actual username on the server
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no root@38.242.147.19 <<'EOF'
+                    sh """
+                        ssh -o StrictHostKeyChecking=no root@38.242.147.19 <<EOF
                         # Pull the latest image from Docker Hub
                         docker pull ${IMAGE_NAME}:latest
                         
@@ -81,19 +83,19 @@ pipeline {
                             docker rm flask-app
                         fi
                         
-                        # Run the new container
+                        # Run the new container with the correct environment variables
                         docker run -d \
                             --name flask-app \
                             -p 3300:3300 \
                             --restart always \
-                            -e MODAL_TOKEN_ID=${MODAL_TOKEN_ID} \
-                            -e MODAL_TOKEN_SECRET=${MODAL_TOKEN_SECRET} \
-                            -e IMAGEKIT_PRIVATE_KEY=${env.IMAGEKIT_PRIVATE_KEY} \
-                            -e IMAGEKIT_PUBLIC_KEY=${env.IMAGEKIT_PUBLIC_KEY} \
-                            -e IMAGEKIT_URL_ENDPOINT=${env.IMAGEKIT_URL_ENDPOINT} \
+                            -e MODAL_TOKEN_ID='${MODAL_TOKEN_ID}' \
+                            -e MODAL_TOKEN_SECRET='${MODAL_TOKEN_SECRET}' \
+                            -e IMAGEKIT_PRIVATE_KEY='${IMAGEKIT_PRIVATE_KEY}' \
+                            -e IMAGEKIT_PUBLIC_KEY='${IMAGEKIT_PUBLIC_KEY}' \
+                            -e IMAGEKIT_URL_ENDPOINT='${IMAGEKIT_URL_ENDPOINT}' \
                             ${IMAGE_NAME}:latest
-                        EOF
-                    '''
+EOF
+                    """
                 }
             }
         }

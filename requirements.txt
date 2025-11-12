@@ -1,8 +1,5 @@
 Flask==3.0.0
 modal
-moviepy==1.0.3
-openai-whisper==20231117
-Pillow<10.0.0
 imagekitio
 gunicorn
 python-dotenv

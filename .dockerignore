@@ -1,29 +1,11 @@
-# Git
-.git
-.gitignore
-
-# IDE
-.idea/
-.vscode/
-.idx/
-
-# Python
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
-.venv/
-env/
-venv/
-
-# Build artifacts
-dist/
-build/
-
-# Local files
-output.mp4
-*.wav
-*.mp3
-*.jpeg
-*.jpg
-*.png
+.venv
+.idx/
+.idea/
+.vscode/
+/app/cache
+/root/.cache
+.cache/

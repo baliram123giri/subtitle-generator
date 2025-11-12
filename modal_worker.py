@@ -9,7 +9,7 @@ app = modal.App("subtitle-generator-app")
 
 video_generator_image = (
     modal.Image.debian_slim()
-    .apt_install("ffmpeg", "fonts-dejavu-core", "imagemagick")
+    .apt_install("ffmpeg", "fonts-dejavu-core", "imagemagick", "zlib1g-dev")
     .pip_install(
         "openai-whisper==20231117",
         "moviepy==1.0.3",

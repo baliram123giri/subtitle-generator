@@ -2,6 +2,10 @@ pipeline {
     // Run the pipeline on any available Jenkins agent
     agent any
 
+    triggers {
+        githubPush()
+    }
+
     // Environment variables for the pipeline
     environment {
         // Your Docker Hub username.

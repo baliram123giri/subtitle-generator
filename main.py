@@ -5,7 +5,8 @@ import threading
 from collections import OrderedDict
 from flask import Flask, request, jsonify, send_file, abort
 import modal
-from imagekitio import ImageKit
+import cloudinary
+import cloudinary.uploader
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -15,11 +16,11 @@ app = Flask(__name__)
 # Create an output directory if it doesn't exist
 os.makedirs("output", exist_ok=True)
 
-# ImageKit Configuration
-imagekit = ImageKit(
-    private_key=os.environ.get("IMAGEKIT_PRIVATE_KEY"),
-    public_key=os.environ.get("IMAGEKIT_PUBLIC_KEY"),
-    url_endpoint=os.environ.get("IMAGEKIT_URL_ENDPOINT")
+# Cloudinary Configuration
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET")
 )
 
 # In-memory job store, limited to the last 5 jobs
@@ -54,14 +55,15 @@ def process_video_and_upload(job_id, background_content, audio_content, backgrou
         with open(temp_video_path, "wb") as f_out:
             f_out.write(video_content)
         
-        print(f"Job {job_id}: Video saved locally to {temp_video_path}. Uploading to ImageKit...")
+        print(f"Job {job_id}: Video saved locally to {temp_video_path}. Uploading to Cloudinary...")
 
-        # Upload the saved file to ImageKit
-        with open(temp_video_path, "rb") as f_in:
-            upload_info = imagekit.upload(
-                file=f_in,
-                file_name=f"{job_id}.mp4",
-            )
+        # Upload the saved file to Cloudinary
+        upload_info = cloudinary.uploader.upload_video(
+            temp_video_path,
+            folder="videos",
+            public_id=job_id,
+            resource_type="video"
+        )
         
         # Clean up the temporary file
         os.remove(temp_video_path)
@@ -70,7 +72,7 @@ def process_video_and_upload(job_id, background_content, audio_content, backgrou
         # Safely update the job status
         with jobs_lock:
             if job_id in jobs:
-                jobs[job_id] = {"status": "completed", "url": upload_info.url}
+                jobs[job_id] = {"status": "completed", "url": upload_info['secure_url']}
 
     except Exception as e:
         print(f"Job {job_id}: An error occurred: {e}")

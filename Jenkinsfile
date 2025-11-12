@@ -9,18 +9,18 @@ pipeline {
     // Environment variables for the pipeline
     environment {
         // Your Docker Hub username.
-        DOCKER_USERNAME      = "baliram123giri"
+        DOCKER_USERNAME         = "baliram123giri"
         // The name of the Docker image.
-        IMAGE_NAME           = "${env.DOCKER_USERNAME}/flask-video-app"
+        IMAGE_NAME              = "${env.DOCKER_USERNAME}/flask-video-app"
         // Credentials will be pulled from Jenkins Credentials manager
-        MODAL_TOKEN_ID       = credentials('modal-token-id')
-        MODAL_TOKEN_SECRET   = credentials('modal-token-secret')
-        DOCKER_CREDENTIALS   = credentials('docker-hub-credentials')
-        IMAGEKIT_PRIVATE_KEY = credentials('imagekit-private-key')
-        IMAGEKIT_PUBLIC_KEY  = credentials('imagekit-public-key')
-        IMAGEKIT_URL_ENDPOINT= credentials('imagekit-url-endpoint')
+        MODAL_TOKEN_ID          = credentials('modal-token-id')
+        MODAL_TOKEN_SECRET      = credentials('modal-token-secret')
+        DOCKER_CREDENTIALS      = credentials('docker-hub-credentials')
+        CLOUDINARY_CLOUD_NAME   = credentials('cloudinary-cloud-name')
+        CLOUDINARY_API_KEY      = credentials('cloudinary-api-key')
+        CLOUDINARY_API_SECRET   = credentials('cloudinary-api-secret')
         // Jenkins credential ID for SSH access to your server
-        SERVER_SSH_CREDS     = 'server-ssh-credentials' 
+        SERVER_SSH_CREDS        = 'server-ssh-credentials' 
     }
 
     stages {
@@ -90,9 +90,9 @@ pipeline {
                             --restart always \
                             -e MODAL_TOKEN_ID='${MODAL_TOKEN_ID}' \
                             -e MODAL_TOKEN_SECRET='${MODAL_TOKEN_SECRET}' \
-                            -e IMAGEKIT_PRIVATE_KEY='${IMAGEKIT_PRIVATE_KEY}' \
-                            -e IMAGEKIT_PUBLIC_KEY='${IMAGEKIT_PUBLIC_KEY}' \
-                            -e IMAGEKIT_URL_ENDPOINT='${IMAGEKIT_URL_ENDPOINT}' \
+                            -e CLOUDINARY_CLOUD_NAME='${CLOUDINARY_CLOUD_NAME}' \
+                            -e CLOUDINARY_API_KEY='${CLOUDINARY_API_KEY}' \
+                            -e CLOUDINARY_API_SECRET='${CLOUDINARY_API_SECRET}' \
                             ${IMAGE_NAME}:latest
 EOF
                     """

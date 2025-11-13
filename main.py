@@ -58,7 +58,7 @@ def process_video_and_upload(job_id, background_content, audio_content, backgrou
         print(f"Job {job_id}: Video saved locally to {temp_video_path}. Uploading to Cloudinary...")
 
         # Upload the saved file to Cloudinary
-        upload_info = cloudinary.uploader.upload_video(
+        upload_info = cloudinary.uploader.upload(
             temp_video_path,
             folder="videos",
             public_id=job_id,
@@ -129,6 +129,21 @@ def get_status(job_id):
     if not job:
         abort(404, "Job not found. It may have been cleared from the cache.")
     return jsonify(job)
+
+
+# ## temp video upload test
+# @app.route("/upload", methods=["GET"])
+# def upload_video_temp_file():
+#     #get the video path from dir
+#         temp_video_path = "video.mp4"
+#      # Upload the saved file to Cloudinary
+#         upload_info = cloudinary.uploader.upload(
+#             temp_video_path,
+#             folder="videos",
+#             public_id="b6cbc981-16bb-4da0-9d3e-ce446acda2b1",
+#             resource_type="video"
+#         )
+#         return jsonify({"url": upload_info['secure_url']})
 
 
 @app.route('/music', methods=['POST'])
